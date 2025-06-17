@@ -1,5 +1,4 @@
 // src/app/api/uploadthing/route.ts
-export const runtime = "nodejs";
 
 import { createRouteHandler } from "uploadthing/next";
 

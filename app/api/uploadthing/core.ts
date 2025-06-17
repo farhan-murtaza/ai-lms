@@ -10,9 +10,13 @@ const handleAuth = async () => {
 };
 export const ourFileRouter = {
   courseImage: f({ image: { maxFileSize: "4MB", maxFileCount: 1 } })
-    .middleware(() => handleAuth())
-    .onUploadComplete(async ({ file, metadata }) => {
-      console.log("Upload completed:", file);
+    .middleware(async () => {
+      const { userId } = await auth(); // Clerk server-side
+      if (!userId) throw new Error("User not authenticated");
+      return { userId };
+    })
+    .onUploadComplete(async ({ metadata, file }) => {
+      console.log("Upload completed:", file.ufsUrl);
     }),
   courseAttachment: f(["text", "image", "video", "audio", "pdf"])
     .middleware(() => handleAuth())

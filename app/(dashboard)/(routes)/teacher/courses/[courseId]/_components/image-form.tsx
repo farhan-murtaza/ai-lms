@@ -38,14 +38,15 @@ export const ImageForm = ({ initialData, courseId }: ImageFormProps) => {
       imageUrl: initialData?.imageUrl || "",
     },
   });
-  // const { isSubmitting, isValid } = form.formState;
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
+      console.log(courseId);
       await axios.patch(`/api/courses/${courseId}`, values);
       toast.success("Course Updated");
       toggleEdit();
       router.refresh();
+      console.log("Error submitting form");
     } catch {
       console.log("Error submitting form");
     }
