@@ -86,7 +86,7 @@ model Chapter {
 }
 
 model MuxData {
-  id String @default(uuid())
+  id String @id @default(uuid())
   assetId String
   playbackId String?
 
