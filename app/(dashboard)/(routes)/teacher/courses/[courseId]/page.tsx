@@ -80,7 +80,6 @@ const CourseIdPage = async ({ params }: { params: { courseId: string } }) => {
             </span>
           </div>
           <Actions
-            disabled={!isComplete}
             courseId={params.courseId}
             isPublished={course.isPublished}
           />

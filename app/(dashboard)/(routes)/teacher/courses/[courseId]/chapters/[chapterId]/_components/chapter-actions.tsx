@@ -17,8 +17,8 @@ interface ChapterActionsProps {
 
 export const ChapterActions = ({
   disabled,
-  courseId,
   chapterId,
+  courseId,
   isPublished,
 }: ChapterActionsProps) => {
   const router = useRouter();
@@ -35,9 +35,9 @@ export const ChapterActions = ({
         toast.success("Chapter unpublished");
       } else {
         await axios.patch(
-          `/api/courses/${courseId}/chapters/${chapterId}/publish`
+          `/api/courses/${courseId}/chapters/${chapterId}unpublish`
         );
-        toast.success("Chapter published");
+        toast.success("Course published");
       }
       router.refresh();
     } catch {

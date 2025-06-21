@@ -2,6 +2,7 @@
 
 import { ConfirmModal } from "@/components/modals/confirm-modal";
 import { Button } from "@/components/ui/button";
+import { useConfettiStore } from "@/hooks/use-confetti-store";
 import axios from "axios";
 import { Trash } from "lucide-react";
 import { useRouter } from "next/navigation";
@@ -9,19 +10,14 @@ import { useState } from "react";
 import toast from "react-hot-toast";
 
 interface ActionsProps {
-  disabled: boolean;
-  chapterId: string;
+  // disabled: boolean;
   courseId: string;
   isPublished: boolean;
 }
 
-export const Actions = ({
-  disabled,
-  courseId,
-  chapterId,
-  isPublished,
-}: ActionsProps) => {
+export const Actions = ({ courseId, isPublished }: ActionsProps) => {
   const router = useRouter();
+  const confetti = useConfettiStore();
   const [isLoading, setIsLoading] = useState(false);
 
   const onClick = async () => {
@@ -29,15 +25,12 @@ export const Actions = ({
       setIsLoading(true);
 
       if (isPublished) {
-        await axios.patch(
-          `/api/courses/${courseId}/chapters/${chapterId}/unpublish`
-        );
-        toast.success("Chapter unpublished");
+        await axios.patch(`/api/courses/${courseId}/unpublish`);
+        toast.success("Course unpublished");
       } else {
-        await axios.patch(
-          `/api/courses/${courseId}/chapters/${chapterId}/publish`
-        );
-        toast.success("Chapter published");
+        await axios.patch(`/api/courses/${courseId}/publish`);
+        toast.success("Course published");
+        confetti.onOpen();
       }
       router.refresh();
     } catch {
@@ -51,10 +44,10 @@ export const Actions = ({
     try {
       setIsLoading(true);
 
-      await axios.delete(`/api/courses/${courseId}/chapters/${chapterId}`);
-      toast.success("Chapter deleted");
+      await axios.delete(`/api/courses/${courseId}`);
+      toast.success("Course deleted");
       router.refresh();
-      router.push(`/teacher/courses/${courseId}`);
+      router.push(`/teacher/courses`);
     } catch {
       toast.error("Something went wrong");
     } finally {
@@ -63,7 +56,7 @@ export const Actions = ({
   };
   return (
     <div>
-      <Button onClick={onClick} disabled={disabled} variant="outline" size="sm">
+      <Button onClick={onClick} variant="outline" size="sm">
         {isPublished ? "Unpublished" : "Published"}
       </Button>
       <ConfirmModal onConfirm={onDelete}>
