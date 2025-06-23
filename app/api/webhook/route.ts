@@ -37,8 +37,8 @@ export async function POST(req: Request) {
 
     await db.purchase.create({
       data: {
-        userId: userId,
         courseId: courseId,
+        userId: userId,
       },
     });
   } else {
