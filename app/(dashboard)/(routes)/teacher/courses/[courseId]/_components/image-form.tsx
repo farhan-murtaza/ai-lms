@@ -2,15 +2,15 @@
 import { useState } from "react";
 import * as z from "zod";
 import axios from "axios";
+import Image from "next/image";
+import { useRouter } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
+import toast from "react-hot-toast";
 
 import { Button } from "@/components/ui/button";
 import { ImageIcon, Pencil, PlusCircle } from "lucide-react";
-import toast from "react-hot-toast";
-import { useRouter } from "next/navigation";
 import { Course } from "@/lib/generated/prisma";
-import Image from "next/image";
 import { FileUpload } from "@/components/file-upload";
 
 interface ImageFormProps {
@@ -46,7 +46,6 @@ export const ImageForm = ({ initialData, courseId }: ImageFormProps) => {
       toast.success("Course Updated");
       toggleEdit();
       router.refresh();
-      console.log("Error submitting form");
     } catch {
       console.log("Error submitting form");
     }
