@@ -114,7 +114,9 @@ export async function PATCH(
         ...values,
       },
     });
-
+    console.log(values);
+    console.log("tokenId:", process.env.MUX_TOKEN_ID!);
+    console.log("tokenSecret:", process.env.MUX_TOKEN_SECRET!);
     if (values.videoUrl) {
       const existingMuxData = await db.muxData.findFirst({
         where: {
@@ -130,11 +132,26 @@ export async function PATCH(
         });
       }
 
-      const asset = await mux.video.assets.create({
-        inputs: [values.videoUrl],
-        playback_policies: ["public"],
-        test: false,
-      });
+      // const asset = await mux.video.assets.create({
+      //   inputs: [values.videoUrl],
+      //   playback_policies: ["public"],
+      //   test: false,
+      // });
+
+      let asset;
+      try {
+        asset = await mux.video.assets.create({
+          inputs: [{ url: values.videoUrl }],
+          playback_policies: ["public"],
+          video_quality: "basic",
+          test: false,
+        });
+        console.log("Mux asset created:", asset);
+      } catch (muxErr) {
+        console.error("MUX ERROR:", muxErr);
+        return new NextResponse("Mux video upload failed", { status: 500 });
+      }
+
       await db.muxData.create({
         data: {
           chapterId: params.chapterId,

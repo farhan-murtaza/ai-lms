@@ -35,7 +35,7 @@ export const ChapterActions = ({
         toast.success("Chapter unpublished");
       } else {
         await axios.patch(
-          `/api/courses/${courseId}/chapters/${chapterId}unpublish`
+          `/api/courses/${courseId}/chapters/${chapterId}/unpublish`
         );
         toast.success("Course published");
       }

@@ -1,11 +1,14 @@
 "use client";
 
+import { useEffect, useRef, useState } from "react";
 import { useConfettiStore } from "@/hooks/use-confetti-store";
-import MuxPlayer from "@mux/mux-player-react";
+import MuxPlayer, { MuxPlayerRefAttributes } from "@mux/mux-player-react";
+import QuizModal from "@/components/QuizModal";
+import ResultModal from "@/components/ResultModal";
+
 import axios from "axios";
 import { Loader2, Lock } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
 import toast from "react-hot-toast";
 
 interface VideoPlayerProps {
@@ -18,6 +21,15 @@ interface VideoPlayerProps {
   title: string;
 }
 
+// Static quiz for now
+const quizData = [
+  {
+    question: "What is React?",
+    options: ["Library", "Language", "Database", "API"],
+    answer: "Library",
+  },
+];
+
 export const VideoPlayer = ({
   playbackId,
   courseId,
@@ -28,8 +40,41 @@ export const VideoPlayer = ({
   title,
 }: VideoPlayerProps) => {
   const [isReady, setIsReady] = useState(false);
+  const muxRef = useRef<MuxPlayerRefAttributes | null>(null);
+  const [quizShown, setQuizShown] = useState(false);
+  const [showQuiz, setShowQuiz] = useState(false);
+  const [showResult, setShowResult] = useState(false);
+  const [userAnswers, setUserAnswers] = useState({});
+
   const router = useRouter();
   const confetti = useConfettiStore();
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      if (muxRef.current) {
+        const currentTime = muxRef.current.currentTime || 0;
+        if (currentTime >= 120 && !quizShown) {
+          // pause the video
+          muxRef.current.pause?.();
+          setShowQuiz(true);
+          setQuizShown(true);
+        }
+      }
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [quizShown]);
+
+  const handleQuizSubmit = (answers: any) => {
+    setUserAnswers(answers);
+    setShowQuiz(false);
+    setTimeout(() => setShowResult(true), 400);
+  };
+
+  const handleResultClose = () => {
+    setShowResult(false);
+    muxRef.current?.play?.();
+  };
 
   const onEnd = async () => {
     try {
@@ -72,14 +117,30 @@ export const VideoPlayer = ({
         </div>
       )}
       {!isLocked && (
-        <MuxPlayer
-          title={title}
-          //   className={cn(isReady && "hidden")}
-          onCanPlay={() => setIsReady(true)}
-          onEnded={onEnd}
-          autoPlay
-          playbackId={playbackId}
-        />
+        <>
+          <MuxPlayer
+            ref={muxRef}
+            streamType="on-demand"
+            title={title}
+            //   className={cn(isReady && "hidden")}
+            onCanPlay={() => setIsReady(true)}
+            onEnded={onEnd}
+            autoPlay
+            playbackId={playbackId}
+            className="relative z-0"
+          />
+
+          {showQuiz && (
+            <QuizModal questions={quizData} onSubmit={handleQuizSubmit} />
+          )}
+          {showResult && (
+            <ResultModal
+              answers={userAnswers}
+              questions={quizData}
+              onClose={handleResultClose}
+            />
+          )}
+        </>
       )}
     </div>
   );
